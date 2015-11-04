@@ -49,20 +49,20 @@ class Connect4(object):
     
     def make_move(self, col):
         if self.activePlayer == 0:
-            valToWrite = "X "
+            valToWrite = "X"
         else:
-            valToWrite = "O "
+            valToWrite = "O"
         
         for i in range(6):
             if self.board[i][col] == "  ":
                 if i == 5:
-                    self.board[i][col] = valToWrite
+                    self.board[i][col] = valToWrite + " "
                     return True
             else:
                 if i == 0:
                     return False
                 else:
-                    self.board[i-1][col] = valToWrite
+                    self.board[i-1][col] = valToWrite + " "
                     return True
             
     
