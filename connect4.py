@@ -99,6 +99,9 @@ class Connect4(object):
     def start_human_computer_game(self):
 		printBoard = True
 		while(True):
+			if printBoard:
+				self.print_game_board()
+
 			count = 0
 			for y in range(7):
 				if self.board[0][y] == "X " or self.board[0][y] == "O ":
@@ -108,15 +111,9 @@ class Connect4(object):
 			if isFull:
 				print "GAME BOARD IS FULL"
 				break
-			else:
-				print "Count: " + str(count)
-				print self.board[0]
-
-			if printBoard:
-				self.print_game_board()
-				print "Enter column number to drop piece"
 
 			if self.activePlayer == 0:
+				print "Enter column number to drop piece"
 				print "Player 1 (X) >> "
 				colChoice = get_single_character()
 			else:

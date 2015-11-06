@@ -9,8 +9,6 @@ def runAI(board, ID):
 		return "k"
 
 	col = randint(0,length-1)
-	print "AI moves: "
-	print openCols
 
 	return str(openCols[col])
 
