@@ -1,8 +1,8 @@
 import sys
 from random import randint
 
-def runAI(board, ID):
-	openCols = getMoves(board)
+def run_AI(board, ID):
+	openCols = get_moves(board)
 
 	length = len(openCols)
 	if length==0:
@@ -12,7 +12,7 @@ def runAI(board, ID):
 
 	return str(openCols[col])
 
-def getMoves(board):
+def get_moves(board):
 	openSpaces = []
 	for y in range(7):
 		if board[0][y] != 'X ' and board[0][y] != 'O ':

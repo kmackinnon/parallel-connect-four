@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
-from randomAI import runAI
+import copy
+from minimaxAI import run_AI as startMinimax
+from randomAI import run_AI as startRandom
 
 class Connect4(object):
     #index by (row,col), (0,0) is top left
@@ -118,7 +120,8 @@ class Connect4(object):
 				colChoice = get_single_character()
 			else:
 				print "Player 1 (O) >> "
-				colChoice = runAI(self.board, self.activePlayer)
+				tempBoard = copy.deepcopy(self.board)
+				colChoice = startMinimax(tempBoard, self.activePlayer)
 				print "AI PLAYING COLUMN: " + colChoice
 
 			if colChoice == "k":
@@ -153,10 +156,11 @@ class Connect4(object):
 				print "GAME BOARD IS FULL"
 				break
 
+			tempBoard = copy.deepcopy(self.board)
 			if self.activePlayer == 0:
-				colChoice = runAI(self.board, self.activePlayer)
+				colChoice = startMinimax(tempBoard, self.activePlayer)
 			else:
-				colChoice = runAI(self.board, self.activePlayer)
+				colChoice = startMinimax(tempBoard, self.activePlayer)
 
 			if colChoice == "k":
 				sys.exit(0)
