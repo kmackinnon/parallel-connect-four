@@ -70,7 +70,7 @@ def make_move(board, col):
 	else:
 		valToWrite = "O"
 	for i in range(6):
-		if tempBoard[i][col] == "  ":
+		if tempBoard[i][col] == " ":
 			if i == 5:
 				tempBoard[i][col] = valToWrite
 				return tempBoard
@@ -184,9 +184,10 @@ def checkRow(board, val, row):
                     rightSpotsFree += 1
             
             if (streakLength + leftSpotsFree + rightSpotsFree) >= 4:
-                #print "current index:%d, val to check:'%s'" % (i, val)
-                #print "Left:" + str(leftIndices)
-                #print "Right:" + str(rightIndices)
+                print board
+                print "current index:%d, val to check:'%s'" % (i, val)
+                print "Left:" + str(leftIndices)
+                print "Right:" + str(rightIndices)
                 retDict[streakLength] += 1
                 print "Row %d has a streak of %d" % (row, streakLength)
     return retDict
