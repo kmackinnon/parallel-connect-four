@@ -97,9 +97,9 @@ class Connect4(object):
             else:
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
+                    evaluateBoard(self.board, self.activePlayer)
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
-                    evaluateBoard(self.board, self.activePlayer)
                 else:
                     print "Invalid move, column full"
                     printBoard = False
