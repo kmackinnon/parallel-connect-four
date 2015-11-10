@@ -2,11 +2,12 @@
 import sys
 import copy
 from minimaxAI import run_AI as startMinimax
+from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
 
 class Connect4(object):
     #index by (row,col), (0,0) is top left
-    board = [["  " for x in range(7)] for y in range(6)]
+    board = [[" " for x in range(7)] for y in range(6)]
     activePlayer = 0
 
     def __init__(self):
@@ -45,9 +46,15 @@ class Connect4(object):
             print "|",
             for j,val in enumerate(row):
                 if j != len(row)-1:
-                    print val + "|",
+                    if val != " ":
+                        print val + " |",
+                    else:
+                        print val + " |",
                 else:
-                    print val + "|"
+                    if val != " ":
+                        print val + " |"
+                    else:
+                        print val + " |"
         print " --- --- --- --- --- --- ---\n"
 
     def make_move(self, col):
@@ -57,15 +64,15 @@ class Connect4(object):
             valToWrite = "O"
 
         for i in range(6):
-            if self.board[i][col] == "  ":
+            if self.board[i][col] == " ":
                 if i == 5:
-                    self.board[i][col] = valToWrite + " "
+                    self.board[i][col] = valToWrite
                     return True
             else:
                 if i == 0:
                     return False
                 else:
-                    self.board[i-1][col] = valToWrite + " "
+                    self.board[i-1][col] = valToWrite
                     return True
 
     def start_human_human_game(self):
@@ -78,7 +85,7 @@ class Connect4(object):
             if self.activePlayer == 0:
                 print "Player 1 (X) >> ",
             else:
-                print "Player 1 (O) >> ",
+                print "Player 2 (O) >> ",
 
             colChoice = get_single_character()
             if colChoice == "k":
@@ -92,6 +99,7 @@ class Connect4(object):
                 if moveSuccess:
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
+                    evaluateBoard(self.board, self.activePlayer)
                 else:
                     print "Invalid move, column full"
                     printBoard = False
@@ -106,7 +114,7 @@ class Connect4(object):
 
 			count = 0
 			for y in range(7):
-				if self.board[0][y] == "X " or self.board[0][y] == "O ":
+				if self.board[0][y] == "X" or self.board[0][y] == "O":
 					count = count+1
 
 			isFull = (count==7)
@@ -119,7 +127,7 @@ class Connect4(object):
 				print "Player 1 (X) >> "
 				colChoice = get_single_character()
 			else:
-				print "Player 1 (O) >> "
+				print "Player 2 (O) >> "
 				tempBoard = copy.deepcopy(self.board)
 				colChoice = startMinimax(tempBoard, self.activePlayer)
 				print "AI PLAYING COLUMN: " + colChoice
@@ -149,7 +157,7 @@ class Connect4(object):
 
 			count = 0
 			for y in range(7):
-				if self.board[0][y] == "X " or self.board[0][y] == "O ":
+				if self.board[0][y] == "X" or self.board[0][y] == "O":
 					count = count+1
 			isFull = (count==7)
 			if isFull:
