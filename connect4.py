@@ -7,8 +7,12 @@ from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
 
 class Connect4(object):
+
+    HEIGHT = 6
+    WIDTH = 7
+
     #index by (row,col), (0,0) is top left
-    board = [[" " for x in range(7)] for y in range(6)]
+    board = [[" " for x in range(WIDTH)] for y in range(HEIGHT)]
     activePlayer = 0
 
     def __init__(self):
@@ -59,12 +63,13 @@ class Connect4(object):
         print " --- --- --- --- --- --- ---\n"
 
     def make_move(self, col):
+        # first player is player 0
         if self.activePlayer == 0:
             valToWrite = "X"
         else:
             valToWrite = "O"
 
-        for i in range(6):
+        for i in range(HEIGHT):
             if self.board[i][col] == " ":
                 if i == 5:
                     self.board[i][col] = valToWrite
@@ -106,7 +111,6 @@ class Connect4(object):
                     printBoard = False
                     continue
 
-
     def start_human_computer_game(self):
 		printBoard = True
 		while(True):
@@ -114,11 +118,11 @@ class Connect4(object):
 				self.print_game_board()
 
 			count = 0
-			for y in range(7):
+			for y in range(WIDTH):
 				if self.board[0][y] == "X" or self.board[0][y] == "O":
 					count = count+1
 
-			isFull = (count==7)
+			isFull = (count==WIDTH)
 			if isFull:
 				print "GAME BOARD IS FULL"
 				break
@@ -157,10 +161,10 @@ class Connect4(object):
 				self.print_game_board()
 
 			count = 0
-			for y in range(7):
+			for y in range(WIDTH):
 				if self.board[0][y] == "X" or self.board[0][y] == "O":
 					count = count+1
-			isFull = (count==7)
+			isFull = (count==WIDTH)
 			if isFull:
 				print "GAME BOARD IS FULL"
 				break
