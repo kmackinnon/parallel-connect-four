@@ -158,7 +158,7 @@ class Connect4(object):
                     print "Invalid move, column full"
                     printBoard = False
                     continue
-            self.print_game_board()
+        self.print_game_board()
 
     def start_computer_computer_game(self):
         #TODO
