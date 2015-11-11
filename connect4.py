@@ -3,8 +3,8 @@ import sys
 import copy
 from getch import getch
 from minimaxAI import run_AI as startMinimax
-from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
+from gameover import gameOver
 
 class Connect4(object):
 
@@ -69,7 +69,7 @@ class Connect4(object):
         else:
             valToWrite = "O"
 
-        for i in range(HEIGHT):
+        for i in range(self.HEIGHT):
             if self.board[i][col] == " ":
                 if i == 5:
                     self.board[i][col] = valToWrite
@@ -83,6 +83,7 @@ class Connect4(object):
 
     def start_human_human_game(self):
         printBoard = True
+
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -103,93 +104,103 @@ class Connect4(object):
             else:
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
-                    evaluateBoard(self.board, self.activePlayer)
+                    if gameOver(self.board, self.activePlayer):
+                        break
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
                 else:
                     print "Invalid move, column full"
                     printBoard = False
                     continue
+        #final game board            
+        self.print_game_board()
 
     def start_human_computer_game(self):
-		printBoard = True
-		while(True):
-			if printBoard:
-				self.print_game_board()
+        printBoard = True
+        while(True):
+            if printBoard:
+                self.print_game_board()
 
-			count = 0
-			for y in range(WIDTH):
-				if self.board[0][y] == "X" or self.board[0][y] == "O":
-					count = count+1
+            count = 0
+            for y in range(self.WIDTH):
+                if self.board[0][y] == "X" or self.board[0][y] == "O":
+                    count += 1
 
-			isFull = (count==WIDTH)
-			if isFull:
-				print "GAME BOARD IS FULL"
-				break
+            isFull = (count==self.WIDTH)
+            if isFull:
+                print "GAME BOARD IS FULL"
+                break
 
-			if self.activePlayer == 0:
-				print "Enter column number to drop piece"
-				print "Player 1 (X) >> "
-				colChoice = getch()
-			else:
-				print "Player 2 (O) >> "
-				tempBoard = copy.deepcopy(self.board)
-				colChoice = startMinimax(tempBoard, self.activePlayer)
-				print "AI PLAYING COLUMN: " + colChoice
+            if self.activePlayer == 0:
+                print "Enter column number to drop piece"
+                print "Player 1 (X) >> "
+                colChoice = getch()
+            else:
+                print "Player 2 (O) >> "
+                tempBoard = copy.deepcopy(self.board)
+                colChoice = startMinimax(tempBoard, self.activePlayer)
+                print "AI PLAYING COLUMN: " + colChoice
 
-			if colChoice == "k":
-				sys.exit(0)
-			elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
-				print "You must enter a valid column"
-				printBoard = False
-				continue
-			else:
-				moveSuccess = self.make_move(int(colChoice))
-				if moveSuccess:
-					self.activePlayer = (self.activePlayer + 1) % 2
-					printBoard = True
-				else:
-					print "Invalid move, column full"
-					printBoard = False
-					continue
+            if colChoice == "k":
+                sys.exit(0)
+            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+                print "You must enter a valid column"
+                printBoard = False
+                continue
+            else:
+                moveSuccess = self.make_move(int(colChoice))
+                if moveSuccess:
+                    if gameOver(self.board, self.activePlayer):
+                        break
+                    self.activePlayer = (self.activePlayer + 1) % 2
+                    printBoard = True
+                else:
+                    print "Invalid move, column full"
+                    printBoard = False
+                    continue
+            self.print_game_board()
 
     def start_computer_computer_game(self):
         #TODO
-		printBoard = True
-		while(True):
-			if printBoard:
-				self.print_game_board()
+        printBoard = True
+        while(True):
+            if printBoard:
+                self.print_game_board()
 
-			count = 0
-			for y in range(WIDTH):
-				if self.board[0][y] == "X" or self.board[0][y] == "O":
-					count = count+1
-			isFull = (count==WIDTH)
-			if isFull:
-				print "GAME BOARD IS FULL"
-				break
+            count = 0
+            for y in range(self.WIDTH):
+                if self.board[0][y] == "X" or self.board[0][y] == "O":
+                    count += 1
+            isFull = (count==self.WIDTH)
+            if isFull:
+                print "GAME BOARD IS FULL"
+                break
 
-			tempBoard = copy.deepcopy(self.board)
-			if self.activePlayer == 0:
-				colChoice = startMinimax(tempBoard, self.activePlayer)
-			else:
-				colChoice = startMinimax(tempBoard, self.activePlayer)
+            tempBoard = copy.deepcopy(self.board)
+            if self.activePlayer == 0:
+                colChoice = startMinimax(tempBoard, self.activePlayer)
+            else:
+                colChoice = startMinimax(tempBoard, self.activePlayer)
 
-			if colChoice == "k":
-				sys.exit(0)
-			elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
-				print "AI player #" + str(self.activePlayer) + " did not choose a valid column"
-				printBoard = False
-				continue
-			else:
-				moveSuccess = self.make_move(int(colChoice))
-				if moveSuccess:
-					self.activePlayer = (self.activePlayer + 1) % 2
-					printBoard = True
-				else:
-					print "AI player #" + str(self.activePlayer) + " did not make a valid move, column full"
-					printBoard = False
-					continue
+            if colChoice == "k":
+                sys.exit(0)
+            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+                print "AI player #" + str(self.activePlayer) + " did not choose a valid column"
+                printBoard = False
+                continue
+            else:
+                moveSuccess = self.make_move(int(colChoice))
+                if moveSuccess:
+                    if gameOver(self.board, self.activePlayer):
+                        break
+                    self.activePlayer = (self.activePlayer + 1) % 2
+                    printBoard = True
+                else:
+                    print "AI player #" + str(self.activePlayer) + " did not make a valid move, column full"
+                    printBoard = False
+                    continue
+        #final game board            
+        self.print_game_board()
 
 
 if __name__ == "__main__":

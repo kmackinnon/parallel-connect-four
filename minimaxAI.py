@@ -1,6 +1,7 @@
 import sys
 import copy
 import time
+from gameover import gameOver
 from random import randint
 
 activePlayer = -1
@@ -10,99 +11,112 @@ maxDepth = 7
 
 # returns an action
 def alpha_beta_search(board):
-	global startTime
-	startTime = time.clock()
-	moves = get_moves(board)
-	move = moves[randint(0,len(moves)-1)]
-	# v = max_value(state, alpha, beta)
-	v = max_value_first(board, float('-inf'), float('inf'), move, 0)
-	return v[1]
+    global startTime
+    startTime = time.clock()
+    moves = get_moves(board)
+    move = moves[randint(0,len(moves)-1)]
+    # v = max_value(state, alpha, beta)
+    v = max_value_first(board, float('-inf'), float('inf'), move, 0)
+    return v[1]
 
 # returns a utility value
 def max_value_first(board, alpha, beta, m, depth):
-	v = float('-inf')
-	move = m
-	for a in get_moves(board):
-		vMin = min_value(make_move(board,a), alpha, beta, depth+1)
-		if v >= vMin:
-			move = a
-		else:
-			v = vMin
-		if v >= beta:
-			return (v, move)
-		alpha = max(alpha,v)
-	return (v, move)
+    v = float('-inf')
+    move = m
+    for a in get_moves(board):
+        vMin = min_value(make_move(board,a), alpha, beta, depth+1)
+        if v >= vMin:
+            move = a
+        else:
+            v = vMin
+        if v >= beta:
+            return (v, move)
+        alpha = max(alpha,v)
+    return (v, move)
 
 # returns a utility value
 def max_value(board, alpha, beta, depth):
-	if terminal_test(board) or timeCheck() or depth > maxDepth:
-		return utility(board)
-	v = float('-inf')
-	for a in get_moves(board):
-		v = max(v, min_value(make_move(board,a), alpha, beta, depth+1))
-		if v >= beta:
-			return v
-		alpha = max(alpha,v)
-	return v
+
+    # check if the other player just won
+    if activePlayer == 0:
+        player = 1
+    else: 
+        player = 0
+
+    if terminal_test(board, player) or timeCheck() or depth > maxDepth:
+        return utility(board)
+    v = float('-inf')
+    for a in get_moves(board):
+        v = max(v, min_value(make_move(board,a), alpha, beta, depth+1))
+        if v >= beta:
+            return v
+        alpha = max(alpha,v)
+    return v
 
 def min_value(board, alpha, beta, depth):
-	if terminal_test(board) or timeCheck() or depth > maxDepth:
-		return utility(board)
-	v = float('inf')
-	for a in get_moves(board):
-		v = min(v, max_value(make_move(board,a), alpha, beta, depth+1))
-		if v <= alpha:
-			return v
-		beta = min(beta, v)
-	return v
+
+    # check if we just won
+    if activePlayer == 0:
+        player = 1
+    else:
+        player = 0
+
+    if terminal_test(board, player) or timeCheck() or depth > maxDepth:
+        return utility(board)
+    v = float('inf')
+    for a in get_moves(board):
+        v = min(v, max_value(make_move(board,a), alpha, beta, depth+1))
+        if v <= alpha:
+            return v
+        beta = min(beta, v)
+    return v
 
 def get_moves(board):
-	openSpaces = []
-	for y in range(7):
-		if board[0][y] != 'X' and board[0][y] != 'O':
-			openSpaces.append(y)
-	return openSpaces
+    openSpaces = []
+    for y in range(7):
+        if board[0][y] != 'X' and board[0][y] != 'O':
+            openSpaces.append(y)
+    return openSpaces
 
 def make_move(board, col):
-	tempBoard = copy.deepcopy(board)
-	if activePlayer == 0:
-		valToWrite = "X"
-	else:
-		valToWrite = "O"
-	for i in range(6):
-		if tempBoard[i][col] == " ":
-			if i == 5:
-				tempBoard[i][col] = valToWrite
-				return tempBoard
-		else:
-			if i != 0:
-				tempBoard[i-1][col] = valToWrite
-				return tempBoard
+    tempBoard = copy.deepcopy(board)
+    if activePlayer == 0:
+        valToWrite = "X"
+    else:
+        valToWrite = "O"
+    for i in range(6):
+        if tempBoard[i][col] == " ":
+            if i == 5:
+                tempBoard[i][col] = valToWrite
+                return tempBoard
+        else:
+            if i != 0:
+                tempBoard[i-1][col] = valToWrite
+                return tempBoard
 
-# checks if board is full or if a player has won
-def terminal_test(board):
-	# check if board is full
-	count = 0
-	for y in range(7):
-		if board[0][y] == "X" or board[0][y] == "O":
-			count = count+1
-	if (count==7):
-		return True
-	# TODO check if player has won
-	return False
+# checks if player has won or board is full
+def terminal_test(board, player):
+    # checks if player has won
+    if gameOver(board, player):
+        return True
+
+    # check if board is full
+    count = 0
+    for y in range(7):
+        if board[0][y] == "X" or board[0][y] == "O":   
+            count += 1       
+    if (count==7):
+       return True
+
+    return False
 
 def timeCheck():
-	endTime = time.clock()
-	if (endTime - startTime) >= maxTime:
-		print "AI OUT OF TIME"
-		return True
-	else:
-		return False
-
-def evaluateBoard(board, player):
-    global activePlayer
-    activePlayer = player
-    return utility(board)
+    endTime = time.clock()
+    if (endTime - startTime) >= maxTime:
+        print "AI OUT OF TIME"
+        return True
+    else:
+        return False
 
 def checkColumn(board, val, col):
     #only returns a count if there is an available slot above the streak of values
@@ -489,8 +503,7 @@ def checkUpperLeftDiagonals(board, val):
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     retDict[streakLength] += 1
     return retDict
-
-    
+   
 # calculates the utility of a given board state
 def utility(board):
     if activePlayer == 0:
@@ -545,9 +558,8 @@ def utility(board):
     print "Total score for %s is %d\n" % (valToCheck, totalScore) 
     return totalScore
     
-
 def run_AI(board, ID):
-	global activePlayer
-	activePlayer = ID
-	v = alpha_beta_search(board)
-	return str(v)
+    global activePlayer
+    activePlayer = ID
+    v = alpha_beta_search(board)
+    return str(v)
