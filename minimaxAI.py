@@ -157,7 +157,6 @@ def checkRow(board, val, row):
     rightSet = False
     rightIndices = []
     retDict = {2:0, 3:0, 4:0}
-
     for col in range(7):
         if board[row][col] == val:
             if not leftSet:
@@ -220,6 +219,8 @@ def checkRow(board, val, row):
 
             if (streakLength + leftSpotsFree + rightSpotsFree) >= 4:
                 #increment the number of streakLength streaks
+                if streakLength >= 4:
+                    streakLength = 4
                 retDict[streakLength] += 1
     return retDict
 
@@ -370,6 +371,8 @@ def checkUpperRightDiagonals(board, val):
 
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     #a possible 4 in a row could occur, so increment the number of valid streaks
+                    if streakLength >= 4:
+                        streakLength = 4
                     retDict[streakLength] += 1
     return retDict
 
@@ -501,20 +504,21 @@ def checkUpperLeftDiagonals(board, val):
                             rightFreeSpots += 1
 
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
+                    if streakLength >= 4:
+                        streakLength = 4
                     retDict[streakLength] += 1
     return retDict
 
 # calculates the utility of a given board state
 def utility(board):
-    print board
     if activePlayer == 0:
         valToCheck = "X"
     else:
         valToCheck = "O"
 
     twoStreakMult = 1
-    threeStreakMult = 3
-    fourStreakMult = 8
+    threeStreakMult = 5
+    fourStreakMult = 20
 
     #key is number of values in streak, value is the number of streaks for that key
     rowScore = {2:0, 3:0, 4:0}
@@ -545,18 +549,18 @@ def utility(board):
     upLeftDiagScore[2] += streakCountDict[2]
     upLeftDiagScore[3] += streakCountDict[3]
     upLeftDiagScore[4] += streakCountDict[4]
-
+    '''
     print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % valToCheck
     print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
     print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
     print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
     print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
-
+    '''
     totalScore = 0
     totalScore += (twoStreakMult * (rowScore[2] + colScore[2] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (threeStreakMult * (rowScore[3] + colScore[3] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (fourStreakMult * (rowScore[4] + colScore[4] + upRightDiagScore[2] + upLeftDiagScore[2]))
-    print "Total score for %s is %d\n" % (valToCheck, totalScore)
+    #print "Total score for %s is %d\n" % (valToCheck, totalScore)
     return totalScore
 
 def run_AI(board, ID):
