@@ -24,7 +24,7 @@ def max_value_first(board, alpha, beta, m, depth):
     v = float('-inf')
     move = m
     for a in get_moves(board):
-        vMin = min_value(make_move(board,a), alpha, beta, depth+1)
+        vMin = min_value(make_move(board,a,activePlayer), alpha, beta, depth+1)
         if v >= vMin:
             move = a
         else:
@@ -37,25 +37,7 @@ def max_value_first(board, alpha, beta, m, depth):
 # returns a utility value
 def max_value(board, alpha, beta, depth):
 
-    # check if the other player just won
-    if activePlayer == 0:
-        player = 1
-    else: 
-        player = 0
-
-    if terminal_test(board, player) or timeCheck() or depth > maxDepth:
-        return utility(board)
-    v = float('-inf')
-    for a in get_moves(board):
-        v = max(v, min_value(make_move(board,a), alpha, beta, depth+1))
-        if v >= beta:
-            return v
-        alpha = max(alpha,v)
-    return v
-
-def min_value(board, alpha, beta, depth):
-
-    # check if we just won
+    # set opponent
     if activePlayer == 0:
         player = 1
     else:
@@ -63,9 +45,27 @@ def min_value(board, alpha, beta, depth):
 
     if terminal_test(board, player) or timeCheck() or depth > maxDepth:
         return utility(board)
+    v = float('-inf')
+    for a in get_moves(board):
+        v = max(v, min_value(make_move(board,a,activePlayer), alpha, beta, depth+1))
+        if v >= beta:
+            return v
+        alpha = max(alpha,v)
+    return v
+
+def min_value(board, alpha, beta, depth):
+
+    # set opponent
+    if activePlayer == 0:
+        player = 1
+    else:
+        player = 0
+
+    if terminal_test(board, activePlayer) or timeCheck() or depth > maxDepth:
+        return utility(board)
     v = float('inf')
     for a in get_moves(board):
-        v = min(v, max_value(make_move(board,a), alpha, beta, depth+1))
+        v = min(v, max_value(make_move(board,a,player), alpha, beta, depth+1))
         if v <= alpha:
             return v
         beta = min(beta, v)
@@ -78,9 +78,9 @@ def get_moves(board):
             openSpaces.append(y)
     return openSpaces
 
-def make_move(board, col):
+def make_move(board, col, player):
     tempBoard = copy.deepcopy(board)
-    if activePlayer == 0:
+    if player == 0:
         valToWrite = "X"
     else:
         valToWrite = "O"
@@ -103,8 +103,8 @@ def terminal_test(board, player):
     # check if board is full
     count = 0
     for y in range(7):
-        if board[0][y] == "X" or board[0][y] == "O":   
-            count += 1       
+        if board[0][y] == "X" or board[0][y] == "O":
+            count += 1
     if (count==7):
        return True
 
@@ -120,7 +120,7 @@ def timeCheck():
 
 def checkColumn(board, val, col):
     #only returns a count if there is an available slot above the streak of values
-    
+
     #start from the botton and decrement counter
     counting = False
     count = 0
@@ -157,7 +157,7 @@ def checkRow(board, val, row):
     rightSet = False
     rightIndices = []
     retDict = {2:0, 3:0, 4:0}
-    
+
     for col in range(7):
         if board[row][col] == val:
             if not leftSet:
@@ -168,14 +168,14 @@ def checkRow(board, val, row):
             if leftSet and col != 0:
                 #the last value in a streak
                 rightIndices.append(col-1)
-                
+
                 #set to false to keep searching for more streaks
-                leftSet = False     
-        
+                leftSet = False
+
         if col == 6 and leftSet:
             #loop reached the end of a row without getting a space or opponent value, so this is the desired value
             rightIndices.append(col)
-    
+
     #check each pair of indices to evaluate the score
     if len(leftIndices) != len(rightIndices):
         print "ROW CHECK ERROR"
@@ -186,14 +186,14 @@ def checkRow(board, val, row):
             rightSpotsFree = 0
             leftIndex = leftIndices[i]
             rightIndex = rightIndices[i]
-            
+
             #add 1 to account for zero indexing
             streakLength = rightIndex - leftIndex + 1
-            
+
             if streakLength < 2:
                 #dont care about single value
                 continue
-        
+
             if leftIndex == 0:
                 #obviously no left spots available
                 pass
@@ -206,7 +206,7 @@ def checkRow(board, val, row):
                     leftSpotsFree += 2
                 elif board[row][leftIndex-1] == " ":
                     leftSpotsFree += 1
-            
+
             if rightIndex == 6:
                 pass
             elif rightIndex == 5:
@@ -217,7 +217,7 @@ def checkRow(board, val, row):
                     rightSpotsFree += 2
                 elif board[row][rightIndex+1] == " ":
                     rightSpotsFree += 1
-            
+
             if (streakLength + leftSpotsFree + rightSpotsFree) >= 4:
                 #increment the number of streakLength streaks
                 retDict[streakLength] += 1
@@ -226,12 +226,12 @@ def checkRow(board, val, row):
 def checkUpperRightDiagonals(board, val):
     checkBoard = [[False for x in range(7)] for y in range(6)]
     retDict = {2:0, 3:0, 4:0}
-    
+
     leftColIndices = []
     rightColIndices = []
     topRowIndices = []
     bottomRowIndices = []
-    
+
     #iterate through every element in the array. If desired value found, then look up and to the right,
     #then down to the left to get the end indices of the diagonal streak
     for row in range(6):
@@ -243,7 +243,7 @@ def checkUpperRightDiagonals(board, val):
                     tempRow = row
                     tempCol = col
                     counting = True
-                
+
                     #check up and to the right
                     if row == 0 or col == 6:
                         rightColIndices.append(col)
@@ -275,7 +275,7 @@ def checkUpperRightDiagonals(board, val):
                                     counting = False
                                     rightColIndices.append(tempCol-1)
                                     topRowIndices.append(tempRow+1)
-                    
+
                     #check down and to the left
                     if row == 5 or col == 0:
                         leftColIndices.append(col)
@@ -309,7 +309,7 @@ def checkUpperRightDiagonals(board, val):
                                     counting = False
                                     leftColIndices.append(tempCol+1)
                                     bottomRowIndices.append(tempRow-1)
-    
+
     #iterate through sets of diagonal streak end points
     if len(leftColIndices) != len(rightColIndices) and len(leftColIndices) != len(topRowIndices) and len(leftColIndices) != len(bottomRowIndices):
         print "ERROR: upper right diagonal index lists not same size"
@@ -320,17 +320,17 @@ def checkUpperRightDiagonals(board, val):
             rightIndex = rightColIndices[i]
             topIndex = topRowIndices[i]
             bottomIndex = bottomRowIndices[i]
-            
+
             if leftIndex == rightIndex:
                 #single value, dont care about it
                 continue
             else:
                 streakLength = rightIndex - leftIndex + 1
-                
+
                 #check for free spots on either end of the streak
                 leftFreeSpots = 0
                 rightFreeSpots = 0
-                
+
                 #check free spots down and to the left
                 if leftIndex == 0:
                     pass
@@ -350,7 +350,7 @@ def checkUpperRightDiagonals(board, val):
                         #bottom index = 4
                         if board[bottomIndex+1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
-                
+
                 #check free spots up and to the right
                 if rightIndex == 6:
                     pass
@@ -367,7 +367,7 @@ def checkUpperRightDiagonals(board, val):
                     elif topIndex != 0:
                         if board[topIndex-1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
-                
+
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     #a possible 4 in a row could occur, so increment the number of valid streaks
                     retDict[streakLength] += 1
@@ -378,7 +378,7 @@ def checkUpperLeftDiagonals(board, val):
     #look there for comments
     checkBoard = [[False for x in range(7)] for y in range(6)]
     retDict = {2:0, 3:0, 4:0}
-    
+
     leftColIndices = []
     rightColIndices = []
     topRowIndices = []
@@ -393,7 +393,7 @@ def checkUpperLeftDiagonals(board, val):
                     counting = True
                     leftSet = False
                     rightSet = False
-                
+
                     #check up and to the left
                     if row == 0 or col == 0:
                         leftColIndices.append(col)
@@ -418,7 +418,7 @@ def checkUpperLeftDiagonals(board, val):
                                     counting = False
                                     leftColIndices.append(tempCol+1)
                                     topRowIndices.append(tempRow+1)
-                    
+
                     #check down and to the right
                     if row == 5 or col == 6:
                         rightColIndices.append(col)
@@ -447,7 +447,7 @@ def checkUpperLeftDiagonals(board, val):
                                     counting = False
                                     rightColIndices.append(tempCol-1)
                                     bottomRowIndices.append(tempRow-1)
-    
+
     #iterate through sets of diagonal streak end points
     if len(leftColIndices) != len(rightColIndices) and len(leftColIndices) != len(topRowIndices) and len(leftColIndices) != len(bottomRowIndices):
         print "ERROR: upper right diagonal index lists not same size"
@@ -457,14 +457,14 @@ def checkUpperLeftDiagonals(board, val):
             rightIndex = rightColIndices[i]
             topIndex = topRowIndices[i]
             bottomIndex = bottomRowIndices[i]
-            
+
             if leftIndex == rightIndex:
                 continue
             else:
                 streakLength = rightIndex - leftIndex + 1
                 leftFreeSpots = 0
                 rightFreeSpots = 0
-                
+
                 #check free spots up and to the left
                 if leftIndex == 0:
                     pass
@@ -482,7 +482,7 @@ def checkUpperLeftDiagonals(board, val):
                         #bottom index = 4
                         if board[topIndex-1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
-                
+
                 #check free spots down and to the right
                 if rightIndex == 6:
                     pass
@@ -499,18 +499,19 @@ def checkUpperLeftDiagonals(board, val):
                     elif bottomIndex != 5:
                         if board[topIndex+1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
-                
+
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     retDict[streakLength] += 1
     return retDict
-   
+
 # calculates the utility of a given board state
 def utility(board):
+    print board
     if activePlayer == 0:
         valToCheck = "X"
     else:
         valToCheck = "O"
-    
+
     twoStreakMult = 1
     threeStreakMult = 3
     fourStreakMult = 8
@@ -520,44 +521,44 @@ def utility(board):
     colScore = {2:0, 3:0, 4:0}
     upRightDiagScore = {2:0, 3:0, 4:0}
     upLeftDiagScore = {2:0, 3:0, 4:0}
-    
+
     #check for vertical matches
     for col in range(7):
         count = checkColumn(board, valToCheck, col)     #returns [0-4]
         if count > 1:
             colScore[count] += 1
-    
-    
+
+
     #check for horizontal matches
     for row in range(6):
         streakCountDict = checkRow(board, valToCheck, row)
         rowScore[2] += streakCountDict[2]
         rowScore[3] += streakCountDict[3]
         rowScore[4] += streakCountDict[4]
-    
+
     streakCountDict = checkUpperRightDiagonals(board, valToCheck)
     upRightDiagScore[2] += streakCountDict[2]
     upRightDiagScore[3] += streakCountDict[3]
     upRightDiagScore[4] += streakCountDict[4]
-    
+
     streakCountDict = checkUpperLeftDiagonals(board, valToCheck)
     upLeftDiagScore[2] += streakCountDict[2]
     upLeftDiagScore[3] += streakCountDict[3]
     upLeftDiagScore[4] += streakCountDict[4]
-    
+
     print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % valToCheck
     print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
     print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
     print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
     print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
-    
+
     totalScore = 0
     totalScore += (twoStreakMult * (rowScore[2] + colScore[2] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (threeStreakMult * (rowScore[3] + colScore[3] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (fourStreakMult * (rowScore[4] + colScore[4] + upRightDiagScore[2] + upLeftDiagScore[2]))
-    print "Total score for %s is %d\n" % (valToCheck, totalScore) 
+    print "Total score for %s is %d\n" % (valToCheck, totalScore)
     return totalScore
-    
+
 def run_AI(board, ID):
     global activePlayer
     activePlayer = ID
