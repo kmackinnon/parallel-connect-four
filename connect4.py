@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import copy
+from getch import getch
 from minimaxAI import run_AI as startMinimax
 from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
@@ -30,7 +31,7 @@ class Connect4(object):
         while(True):
             print "\nChoose your game type:\n1. Human vs human\n2. Human vs computer\n3. Computer vs Computer"
             print ">>",
-            gameChoice = get_single_character()
+            gameChoice = getch()
             if gameChoice not in ["1", "2", "3"]:
                 print "You must enter the number for the desired game type"
                 continue
@@ -87,7 +88,7 @@ class Connect4(object):
             else:
                 print "Player 2 (O) >> ",
 
-            colChoice = get_single_character()
+            colChoice = getch()
             if colChoice == "k":
                 sys.exit(0)
             elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
@@ -125,7 +126,7 @@ class Connect4(object):
 			if self.activePlayer == 0:
 				print "Enter column number to drop piece"
 				print "Player 1 (X) >> "
-				colChoice = get_single_character()
+				colChoice = getch()
 			else:
 				print "Player 2 (O) >> "
 				tempBoard = copy.deepcopy(self.board)
@@ -186,18 +187,6 @@ class Connect4(object):
 					printBoard = False
 					continue
 
-
-def get_single_character():
-    import sys, tty, termios
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    print ch
-    return ch
 
 if __name__ == "__main__":
     game = Connect4()
