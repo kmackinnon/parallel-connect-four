@@ -6,9 +6,9 @@ from random import randint
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 30
+maxTime = 10
 startTime = 0
-maxDepth = 0
+maxDepth = 7
 
 # returns an action
 def alpha_beta_search(board):
@@ -18,6 +18,7 @@ def alpha_beta_search(board):
     move = moves[randint(0,len(moves)-1)]
     # v = max_value(state, alpha, beta)
     v = max_value_first(board, float('-inf'), float('inf'), move, 0)
+    #print "SCORE USED: " + str(v[0])
     return v[1]
 
 # returns a utility value
@@ -25,12 +26,14 @@ def max_value_first(board, alpha, beta, m, depth):
     v = float('-inf')
     move = m
     for a in get_moves(board):
-        print "MAX MAKES MOVE: " + str(a)
+        #print "MAX MAKES MOVE: " + str(a)
         vMin = min_value(make_move(board,a,activePlayer), alpha, beta, depth+1)
         if v >= vMin:
-            move = a
+            #move = a
+            move = move
         else:
             v = vMin
+            move = a
         if v >= beta:
             return (v, move)
         alpha = max(alpha,v)
@@ -38,14 +41,13 @@ def max_value_first(board, alpha, beta, m, depth):
 
 # returns a utility value
 def max_value(board, alpha, beta, depth):
-    print "MAX A: " + str(alpha) + " B: " + str(beta) + " D: " + str(depth)
+    #print "MAX A: " + str(alpha) + " B: " + str(beta) + " D: " + str(depth)
 
     if terminal_test(board, opponentPlayer) or timeCheck() or depth > maxDepth:
-        print board
-        return utility(board, activePlayer)
+        return utility(board)
     v = float('-inf')
     for a in get_moves(board):
-        print "MAX MAKES MOVE: " + str(a)
+        #print "MAX MAKES MOVE: " + str(a)
         v = max(v, min_value(make_move(board,a,activePlayer), alpha, beta, depth+1))
         if v >= beta:
             return v
@@ -53,14 +55,13 @@ def max_value(board, alpha, beta, depth):
     return v
 
 def min_value(board, alpha, beta, depth):
-    print "MIN A: " + str(alpha) + " B: " + str(beta) + " D: " + str(depth)
+    #print "MIN A: " + str(alpha) + " B: " + str(beta) + " D: " + str(depth)
 
     if terminal_test(board, activePlayer) or timeCheck() or depth > maxDepth:
-        print board
-        return utility(board, opponentPlayer)
+        return utility(board)
     v = float('inf')
     for a in get_moves(board):
-        print "MIN MAKES MOVE: " + str(a)
+        #print "MIN MAKES MOVE: " + str(a)
         v = min(v, max_value(make_move(board,a,opponentPlayer), alpha, beta, depth+1))
         if v <= alpha:
             return v
@@ -506,8 +507,8 @@ def checkUpperLeftDiagonals(board, val):
     return retDict
 
 # calculates the utility of a given board state
-def utility(board, player):
-    if player == 0:
+def utility(board):
+    if activePlayer == 0:
         myValToCheck = "X"
         oppValToCheck = "O"
     else:
@@ -546,25 +547,26 @@ def utility(board, player):
     checkUpperLeftDiagMatches(board, myValToCheck, upLeftDiagScore)
     checkUpperLeftDiagMatches(board, oppValToCheck, oppUpLeftDiagScore)
 
-    print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % myValToCheck
-    print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
-    print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
-    print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
-    print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
-    print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % oppValToCheck
-    print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (oppColScore[2], oppColScore[3], oppColScore[4])
-    print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (oppRowScore[2],oppRowScore[3],oppRowScore[4])
-    print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpRightDiagScore[2], oppUpRightDiagScore[3], oppUpRightDiagScore[4])
-    print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpLeftDiagScore[2], oppUpLeftDiagScore[3], oppUpLeftDiagScore[4])
+    # print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % myValToCheck
+    # print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
+    # print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
+    # print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
+    # print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
+    # print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % oppValToCheck
+    # print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (oppColScore[2], oppColScore[3], oppColScore[4])
+    # print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (oppRowScore[2],oppRowScore[3],oppRowScore[4])
+    # print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpRightDiagScore[2], oppUpRightDiagScore[3], oppUpRightDiagScore[4])
+    # print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpLeftDiagScore[2], oppUpLeftDiagScore[3], oppUpLeftDiagScore[4])
 
     totalScore = 0
     totalScore += (twoStreakMult * (rowScore[2] + colScore[2] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (threeStreakMult * (rowScore[3] + colScore[3] + upRightDiagScore[3] + upLeftDiagScore[3]))
     totalScore += (fourStreakMult * (rowScore[4] + colScore[4] + upRightDiagScore[4] + upLeftDiagScore[4]))
+
     totalScore += -2 * (twoStreakMult * (oppRowScore[2] + oppColScore[2] + oppUpRightDiagScore[2] + oppUpLeftDiagScore[2]))
     totalScore += -2 * (threeStreakMult * (oppRowScore[3] + oppColScore[3] + oppUpRightDiagScore[3] + oppUpLeftDiagScore[3]))
     totalScore += -2 * (fourStreakMult * (oppRowScore[4] + oppColScore[4] + oppUpRightDiagScore[4] + oppUpLeftDiagScore[4]))
-    print "Total score for %s is %d\n" % (myValToCheck, totalScore)
+    #print "Total score for %s is %d\n" % (myValToCheck, totalScore)
     return totalScore
 
 def checkVerticalMatches(board, valToCheck, colScore):
