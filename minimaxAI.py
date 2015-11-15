@@ -219,6 +219,29 @@ def checkRow(board, val, row):
                 if streakLength >= 4:
                     streakLength = 4
                 retDict[streakLength] += 1
+        
+        #check for gaps
+        for i in range(len(leftIndices)):
+            if i != (len(leftIndices) - 1):
+                #not the last element
+                leftIndex = leftIndices[i]
+                rightIndex = rightIndices[i]
+                nextLeftIndex = leftIndices[i+1]
+                nextRightIndex = rightIndices[i+1]
+                
+                #if X at 2 and 4, gap at index 3 and gapLength == 1 (minus 1 for 0 indexing)
+                gapLength = nextLeftIndex - rightIndex - 1
+                if gapLength == 1:
+                    #gap detected, need to check if it is empty
+                    gapIndex = rightIndex + gapLength
+                    if board[row][gapIndex] == " ":
+                        #valid gap detected
+                        leftStreak = rightIndex - leftIndex + 1
+                        rightStreak = nextRightIndex - nextLeftIndex + 1
+                        streakLength = leftStreak + rightStreak
+                        if streakLength >= 4:
+                            streakLength = 3
+                        retDict[streakLength] += 1                    
     return retDict
 
 def checkUpperRightDiagonals(board, val):
@@ -312,6 +335,8 @@ def checkUpperRightDiagonals(board, val):
     if len(leftColIndices) != len(rightColIndices) and len(leftColIndices) != len(topRowIndices) and len(leftColIndices) != len(bottomRowIndices):
         print "ERROR: upper right diagonal index lists not same size"
     else:
+        gapCheck = [[False for x in range(7)] for y in range(6)]
+        
         #check each set of indices, each set represents one diagonal streak
         for i in range(len(leftColIndices)):
             leftIndex = leftColIndices[i]
@@ -319,15 +344,17 @@ def checkUpperRightDiagonals(board, val):
             topIndex = topRowIndices[i]
             bottomIndex = bottomRowIndices[i]
 
-            if leftIndex == rightIndex:
-                #single value, dont care about it
-                continue
-            else:
+            
+            if leftIndex != rightIndex:
                 streakLength = rightIndex - leftIndex + 1
 
                 #check for free spots on either end of the streak
                 leftFreeSpots = 0
                 rightFreeSpots = 0
+                
+                if streakLength >= 4:
+                    retDict[4] += 1
+                    continue
 
                 #check free spots down and to the left
                 if leftIndex == 0:
@@ -339,8 +366,15 @@ def checkUpperRightDiagonals(board, val):
                 else:
                     #look 2 cells in this direction
                     if bottomIndex != 4 and bottomIndex != 5:
+                        if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == val:
+                            #there is a gap, since at least 2 on one side, can assume it goes 2 + gap + 1, so 3 streak
+                            retDict[3] += 1
+                            gapCheck[topIndex][rightIndex] = True
+                            gapCheck[bottomIndex][leftIndex] = True
+                            continue
+                            #leftFreeSpots += 2
                         #also consider val a free space when looking 2 cells away, to account for gaps
-                        if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] in (' ', val):
+                        elif board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == ' ':
                             leftFreeSpots += 2
                         elif board[bottomIndex+1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
@@ -358,7 +392,20 @@ def checkUpperRightDiagonals(board, val):
                             rightFreeSpots += 1
                 else:
                     if topIndex != 1 and topIndex != 0:
-                        if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] in (' ', val):
+                        if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val:
+                            '''try:
+                                if board[topIndex][rightIndex+1] != ' ':
+                                    retDict[3] += 1
+                                    if streakLength < 4:
+                                        continue
+                            except IndexError:
+                                pass'''
+                            retDict[3] += 1
+                            gapCheck[topIndex][rightIndex] = True
+                            gapCheck[bottomIndex][leftIndex] = True
+                            continue
+                            #rightFreeSpots += 2
+                        elif board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == ' ':
                             rightFreeSpots += 2
                         elif board[topIndex-1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
@@ -371,6 +418,19 @@ def checkUpperRightDiagonals(board, val):
                     if streakLength >= 4:
                         streakLength = 4
                     retDict[streakLength] += 1
+            else:
+                #leftIndex == rightIndex:
+                if topIndex > 1 and rightIndex < 4:
+                    if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val and not gapCheck[topIndex-2][rightIndex+2]:
+                        retDict[2] += 1
+                    gapCheck[topIndex][rightIndex] = True
+                    gapCheck[bottomIndex][leftIndex] = True
+                if bottomIndex < 4 and leftIndex > 1:
+                    if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == val and not gapCheck[bottomIndex+2][leftIndex-2]:
+                        #there is a gap, check if gap can be filled on next move
+                        retDict[2] += 1
+                    gapCheck[topIndex][rightIndex] = True
+                    gapCheck[bottomIndex][leftIndex] = True
     return retDict
 
 def checkUpperLeftDiagonals(board, val):
@@ -452,18 +512,23 @@ def checkUpperLeftDiagonals(board, val):
     if len(leftColIndices) != len(rightColIndices) and len(leftColIndices) != len(topRowIndices) and len(leftColIndices) != len(bottomRowIndices):
         print "ERROR: upper right diagonal index lists not same size"
     else:
+        gapCheck = [[False for x in range(7)] for y in range(6)]
+        
         for i in range(len(leftColIndices)):
             leftIndex = leftColIndices[i]
             rightIndex = rightColIndices[i]
             topIndex = topRowIndices[i]
             bottomIndex = bottomRowIndices[i]
+            
 
-            if leftIndex == rightIndex:
-                continue
-            else:
+            if leftIndex != rightIndex:
                 streakLength = rightIndex - leftIndex + 1
                 leftFreeSpots = 0
                 rightFreeSpots = 0
+
+                if streakLength >= 4:
+                    retDict[4] += 1
+                    continue
 
                 #check free spots up and to the left
                 if leftIndex == 0:
@@ -474,7 +539,12 @@ def checkUpperLeftDiagonals(board, val):
                             leftFreeSpots += 1
                 else:
                     if topIndex != 1 and topIndex != 0:
-                        if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] in (' ', val):
+                        if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == val:
+                            retDict[3] += 1
+                            gapCheck[topIndex][leftIndex] = True
+                            gapCheck[bottomIndex][rightIndex] = True
+                            continue
+                        elif board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == ' ':
                             leftFreeSpots += 2
                         elif board[topIndex-1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
@@ -492,7 +562,12 @@ def checkUpperLeftDiagonals(board, val):
                             rightFreeSpots += 1
                 else:
                     if bottomIndex != 4 and bottomIndex != 5:
-                        if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] in (' ', val):
+                        if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == val:
+                            retDict[3] += 1
+                            gapCheck[topIndex][leftIndex] = True
+                            gapCheck[bottomIndex][rightIndex] = True
+                            continue
+                        elif board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == ' ':
                             rightFreeSpots += 2
                         elif board[bottomIndex+1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
@@ -504,10 +579,32 @@ def checkUpperLeftDiagonals(board, val):
                     if streakLength >= 4:
                         streakLength = 4
                     retDict[streakLength] += 1
+            else:
+                if topIndex > 1 and leftIndex > 1:
+                    if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == val and not gapCheck[topIndex-2][leftIndex-2]:
+                        retDict[2] += 1
+                        #print "setting at l=%d, r=%d, t=%d, b=%d" % (leftIndex, rightIndex, topIndex, bottomIndex)
+                        #print gapCheck
+                    gapCheck[topIndex][leftIndex] = True
+                    gapCheck[bottomIndex][rightIndex] = True
+                if bottomIndex < 4 and rightIndex < 4:
+                    if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == val and not gapCheck[bottomIndex+2][rightIndex+2]:
+                        #there is a gap, check if gap can be filled on next move
+                        retDict[2] += 1
+                        #print "setting at l=%d, r=%d, t=%d, b=%d" % (leftIndex, rightIndex, topIndex, bottomIndex)
+                        #print gapCheck
+                    gapCheck[topIndex][leftIndex] = True
+                    gapCheck[bottomIndex][rightIndex] = True
     return retDict
+
+
+def evaluateBoard(board, player):
+    activePlayer = player
+    utility(board)
 
 # calculates the utility of a given board state
 def utility(board):
+    global activePlayer
     if activePlayer == 0:
         myValToCheck = "X"
         oppValToCheck = "O"
@@ -546,26 +643,26 @@ def utility(board):
     # check upper left diagonal matches
     checkUpperLeftDiagMatches(board, myValToCheck, upLeftDiagScore)
     checkUpperLeftDiagMatches(board, oppValToCheck, oppUpLeftDiagScore)
-
-    # print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % myValToCheck
-    # print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
-    # print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
-    # print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
-    # print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
-    # print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % oppValToCheck
-    # print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (oppColScore[2], oppColScore[3], oppColScore[4])
-    # print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (oppRowScore[2],oppRowScore[3],oppRowScore[4])
-    # print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpRightDiagScore[2], oppUpRightDiagScore[3], oppUpRightDiagScore[4])
-    # print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpLeftDiagScore[2], oppUpLeftDiagScore[3], oppUpLeftDiagScore[4])
-
+    '''
+    print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % myValToCheck
+    print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (colScore[2], colScore[3], colScore[4])
+    print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (rowScore[2],rowScore[3],rowScore[4])
+    print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (upRightDiagScore[2], upRightDiagScore[3], upRightDiagScore[4])
+    print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (upLeftDiagScore[2], upLeftDiagScore[3], upLeftDiagScore[4])
+    print "\n==========================\nREPORT FOR %s VALUES\n==========================\n" % oppValToCheck
+    print "Valid vertical streaks:\n2:%d\n3:%d\n4:%d\n" % (oppColScore[2], oppColScore[3], oppColScore[4])
+    print "Valid horizontal streaks:\n2:%d\n3:%d\n4:%d\n" % (oppRowScore[2],oppRowScore[3],oppRowScore[4])
+    print "Valid northeast streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpRightDiagScore[2], oppUpRightDiagScore[3], oppUpRightDiagScore[4])
+    print "Valid northwest streaks:\n2:%d\n3:%d\n4:%d\n" % (oppUpLeftDiagScore[2], oppUpLeftDiagScore[3], oppUpLeftDiagScore[4])
+    '''
     totalScore = 0
     totalScore += (twoStreakMult * (rowScore[2] + colScore[2] + upRightDiagScore[2] + upLeftDiagScore[2]))
     totalScore += (threeStreakMult * (rowScore[3] + colScore[3] + upRightDiagScore[3] + upLeftDiagScore[3]))
     totalScore += (fourStreakMult * (rowScore[4] + colScore[4] + upRightDiagScore[4] + upLeftDiagScore[4]))
 
-    totalScore += -2 * (twoStreakMult * (oppRowScore[2] + oppColScore[2] + oppUpRightDiagScore[2] + oppUpLeftDiagScore[2]))
-    totalScore += -2 * (threeStreakMult * (oppRowScore[3] + oppColScore[3] + oppUpRightDiagScore[3] + oppUpLeftDiagScore[3]))
-    totalScore += -2 * (fourStreakMult * (oppRowScore[4] + oppColScore[4] + oppUpRightDiagScore[4] + oppUpLeftDiagScore[4]))
+    totalScore += -3 * (twoStreakMult * (oppRowScore[2] + oppColScore[2] + oppUpRightDiagScore[2] + oppUpLeftDiagScore[2]))
+    totalScore += -3 * (threeStreakMult * (oppRowScore[3] + oppColScore[3] + oppUpRightDiagScore[3] + oppUpLeftDiagScore[3]))
+    totalScore += -3 * (fourStreakMult * (oppRowScore[4] + oppColScore[4] + oppUpRightDiagScore[4] + oppUpLeftDiagScore[4]))
     #print "Total score for %s is %d\n" % (myValToCheck, totalScore)
     return totalScore
 

@@ -3,6 +3,7 @@ import sys
 import copy
 from getch import getch
 from minimaxAI import run_AI as startMinimax
+from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
 from gameover import gameOver
 
@@ -104,6 +105,7 @@ class Connect4(object):
             else:
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
+                    evaluateBoard(self.board, self.activePlayer)
                     if gameOver(self.board, self.activePlayer):
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
