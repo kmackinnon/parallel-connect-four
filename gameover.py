@@ -1,4 +1,4 @@
-import minimaxAI as ai
+import evaluationUtilities as ai
 
 def gameOver(board, player):
     return verticalWin(board, player) or horizontalWin(board, player) or diagonalWin(board, player)

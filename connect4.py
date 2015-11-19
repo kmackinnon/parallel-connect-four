@@ -114,7 +114,7 @@ class Connect4(object):
                     print "Invalid move, column full"
                     printBoard = False
                     continue
-        #final game board            
+        #final game board
         self.print_game_board()
 
     def start_human_computer_game(self):
@@ -130,7 +130,6 @@ class Connect4(object):
 
             isFull = (count==self.WIDTH)
             if isFull:
-                print "GAME BOARD IS FULL"
                 break
 
             if self.activePlayer == 0:
@@ -141,7 +140,7 @@ class Connect4(object):
                 print "Player 2 (O) >> "
                 tempBoard = copy.deepcopy(self.board)
                 colChoice = startMinimax(tempBoard, self.activePlayer)
-                print "AI PLAYING COLUMN: " + colChoice
+                print "[INFO] AI is playing column " + colChoice
 
             if colChoice == "k":
                 sys.exit(0)
@@ -175,7 +174,6 @@ class Connect4(object):
                     count += 1
             isFull = (count==self.WIDTH)
             if isFull:
-                print "GAME BOARD IS FULL"
                 break
 
             tempBoard = copy.deepcopy(self.board)
@@ -187,7 +185,7 @@ class Connect4(object):
             if colChoice == "k":
                 sys.exit(0)
             elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
-                print "AI player #" + str(self.activePlayer) + " did not choose a valid column"
+                print "[ERROR] AI player #" + str(self.activePlayer) + " did not choose a valid column"
                 printBoard = False
                 continue
             else:
@@ -198,10 +196,10 @@ class Connect4(object):
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
                 else:
-                    print "AI player #" + str(self.activePlayer) + " did not make a valid move, column full"
+                    print "[ERROR] AI player #" + str(self.activePlayer) + " did not make a valid move, column full"
                     printBoard = False
                     continue
-        #final game board            
+        #final game board
         self.print_game_board()
 
 
