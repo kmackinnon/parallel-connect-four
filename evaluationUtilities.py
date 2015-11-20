@@ -64,7 +64,9 @@ def checkRow(board, val, row):
         for i in range(len(leftIndices)):
             #check how many available spots on both sides of streak, if less than 4, then this is not a valid streak
             leftSpotsFree = 0
+            leftPlayableSpotsFree = 0
             rightSpotsFree = 0
+            rightPlayableSpotsFree = 0
             leftIndex = leftIndices[i]
             rightIndex = rightIndices[i]
 
@@ -74,6 +76,10 @@ def checkRow(board, val, row):
             if streakLength < 2:
                 #dont care about single value
                 continue
+            
+            if streakLength >= 4:
+                retDict[4] += 1
+                continue
 
             if leftIndex == 0:
                 #obviously no left spots available
@@ -81,29 +87,48 @@ def checkRow(board, val, row):
             elif leftIndex == 1:
                 if board[row][leftIndex-1] == " ":
                     leftSpotsFree += 1
+                    if row == 5 or board[row+1][leftIndex-1] != ' ':
+                        leftPlayableSpotsFree += 1
             else:
                 #need at most 2 empty spots, since streaks < 2 haven't gotten this far
                 if board[row][leftIndex-2] == " " and board[row][leftIndex-1] == " ":
                     leftSpotsFree += 2
+                    if row == 5 or (board[row+1][leftIndex-2] != ' ' and board[row+1][leftIndex-1] != ' '):
+                        leftPlayableSpotsFree += 2
+                    elif board[row+1][leftIndex-1] != ' ':
+                        leftPlayableSpotsFree += 1
                 elif board[row][leftIndex-1] == " ":
                     leftSpotsFree += 1
+                    if row == 5 or board[row+1][leftIndex-1] != ' ':
+                        leftPlayableSpotsFree += 1
 
             if rightIndex == 6:
                 pass
             elif rightIndex == 5:
                 if board[row][rightIndex+1] == " ":
                     rightSpotsFree += 1
+                    if row == 5 or board[row+1][rightIndex+1] != ' ':
+                        rightPlayableSpotsFree += 1
             else:
                 if board[row][rightIndex+2] == " " and board[row][rightIndex+1] == " ":
                     rightSpotsFree += 2
+                    if row == 5 or (board[row+1][rightIndex+2] != ' ' and board[row+1][rightIndex+1] != ' '):
+                        rightPlayableSpotsFree += 2
+                    elif board[row+1][rightIndex+1] != ' ':
+                        rightPlayableSpotsFree += 1
                 elif board[row][rightIndex+1] == " ":
                     rightSpotsFree += 1
+                    if row == 5 or board[row+1][rightIndex+1] != ' ':
+                        rightPlayableSpotsFree += 1
+
 
             if (streakLength + leftSpotsFree + rightSpotsFree) >= 4:
                 #increment the number of streakLength streaks
                 if streakLength >= 4:
                     streakLength = 4
-                retDict[streakLength] += 1
+                
+                if leftPlayableSpotsFree != 0 or rightPlayableSpotsFree != 0:
+                    retDict[streakLength] += 1
 
         #check for gaps
         for i in range(len(leftIndices)):
@@ -119,7 +144,7 @@ def checkRow(board, val, row):
                 if gapLength == 1:
                     #gap detected, need to check if it is empty
                     gapIndex = rightIndex + gapLength
-                    if board[row][gapIndex] == " ":
+                    if board[row][gapIndex] == " " and (row == 5 or board[row+1][gapIndex] != ' '):
                         #valid gap detected
                         leftStreak = rightIndex - leftIndex + 1
                         rightStreak = nextRightIndex - nextLeftIndex + 1
@@ -220,7 +245,8 @@ def checkUpperRightDiagonals(board, val):
     if len(leftColIndices) != len(rightColIndices) and len(leftColIndices) != len(topRowIndices) and len(leftColIndices) != len(bottomRowIndices):
         print "ERROR: upper right diagonal index lists not same size"
     else:
-        gapCheck = [[False for x in range(7)] for y in range(6)]
+        #will hold the length of the streak that the gap is between
+        gapCheck = [[0 for x in range(7)] for y in range(6)]
 
         #check each set of indices, each set represents one diagonal streak
         for i in range(len(leftColIndices)):
@@ -235,7 +261,9 @@ def checkUpperRightDiagonals(board, val):
 
                 #check for free spots on either end of the streak
                 leftFreeSpots = 0
+                leftPlayableFreeSpots = 0
                 rightFreeSpots = 0
+                rightPlayableFreeSpots = 0
 
                 if streakLength >= 4:
                     retDict[4] += 1
@@ -248,25 +276,52 @@ def checkUpperRightDiagonals(board, val):
                     if bottomIndex != 5:
                         if board[bottomIndex+1][leftIndex-1] in (' ', val):
                             leftFreeSpots += 1
+                            try:
+                                if board[bottomIndex+2][leftIndex-1] != ' ':
+                                    leftPlayableFreeSpots += 1
+                            except:
+                                pass
                 else:
                     #look 2 cells in this direction
                     if bottomIndex != 4 and bottomIndex != 5:
                         if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == val:
                             #there is a gap, since at least 2 on one side, can assume it goes 2 + gap + 1, so 3 streak
-                            retDict[3] += 1
-                            gapCheck[topIndex][rightIndex] = True
-                            gapCheck[bottomIndex][leftIndex] = True
-                            continue
-                            #leftFreeSpots += 2
+                            
+                            try:
+                                if board[bottomIndex+2][leftIndex-1] != ' ':
+                                    leftPlayableFreeSpots += 1
+                                    if gapCheck[bottomIndex+1][leftIndex-1] == 0:
+                                        retDict[3] += 1
+                                        gapCheck[bottomIndex+1][leftIndex-1] = 3
+                                    elif gapCheck[bottomIndex+1][leftIndex-1] < 3:
+                                        retDict[gapCheck[bottomIndex+1][leftIndex-1]] -= 1
+                                        retDict[3] += 1
+                                        gapCheck[bottomIndex+1][leftIndex-1] = 3
+                                    continue
+                            except IndexError:
+                                pass
+                            
                         #also consider val a free space when looking 2 cells away, to account for gaps
                         elif board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == ' ':
                             leftFreeSpots += 2
+                            if board[bottomIndex+2][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
+                                try:
+                                    if board[bottomIndex+3][leftIndex-2] != ' ':
+                                        leftPlayableFreeSpots += 1
+                                except:
+                                    if bottomIndex+3 == 5:
+                                        leftPlayableFreeSpots += 1
+                                        
                         elif board[bottomIndex+1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
+                            if board[bottomIndex+2][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
                     elif bottomIndex != 5:
                         #bottom index = 4
                         if board[bottomIndex+1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
+                            leftPlayableFreeSpots += 1
 
                 #check free spots up and to the right
                 if rightIndex == 6:
@@ -275,53 +330,72 @@ def checkUpperRightDiagonals(board, val):
                     if topIndex != 0:
                         if board[topIndex-1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            try:
+                                if board[topIndex][rightIndex+1] != ' ':
+                                    rightPlayableFreeSpots += 1
+                            except:
+                                pass
                 else:
                     if topIndex != 1 and topIndex != 0:
-                        if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val:
-                            '''try:
+                        if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val:        
+                            try:
                                 if board[topIndex][rightIndex+1] != ' ':
-                                    retDict[3] += 1
-                                    if streakLength < 4:
-                                        continue
+                                    if gapCheck[topIndex-1][rightIndex+1] == 0:
+                                        retDict[3] += 1
+                                        gapCheck[topIndex-1][rightIndex+1] = 3
+                                    elif gapCheck[topIndex-1][rightIndex+1] < 3:
+                                        retDict[gapCheck[topIndex-1][rightIndex+1]] -= 1
+                                        retDict[3] += 1
+                                        gapCheck[topIndex-1][rightIndex+1] = 3
+                                    continue
                             except IndexError:
-                                pass'''
-                            retDict[3] += 1
-                            gapCheck[topIndex][rightIndex] = True
-                            gapCheck[bottomIndex][leftIndex] = True
-                            continue
-                            #rightFreeSpots += 2
+                                pass
                         elif board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == ' ':
                             rightFreeSpots += 2
+                            if board[topIndex][rightIndex+1] != ' ':
+                                rightPlayableFreeSpots += 1
+                                if board[topIndex-1][rightIndex+2] != ' ':
+                                    rightPlayableFreeSpots += 1
                         elif board[topIndex-1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            if board[topIndex][rightIndex+1] != ' ':
+                                rightPlayableFreeSpots += 1
                     elif topIndex != 0:
+                        #topIndex = 1
                         if board[topIndex-1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            if board[topIndex][rightIndex+1] != ' ':
+                                rightPlayableFreeSpots += 1
 
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     #a possible 4 in a row could occur, so increment the number of valid streaks
                     if streakLength >= 4:
                         streakLength = 4
-                    retDict[streakLength] += 1
+                    
+                    if leftPlayableFreeSpots != 0 or rightPlayableFreeSpots != 0:
+                        retDict[streakLength] += 1
             else:
                 #leftIndex == rightIndex:
                 if topIndex > 1 and rightIndex < 4:
-                    if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val and not gapCheck[topIndex-2][rightIndex+2]:
-                        retDict[2] += 1
-                    gapCheck[topIndex][rightIndex] = True
-                    gapCheck[bottomIndex][leftIndex] = True
+                    if board[topIndex-1][rightIndex+1] == ' ' and board[topIndex-2][rightIndex+2] == val:
+                        if board[topIndex][rightIndex+1] != ' ':
+                            if gapCheck[topIndex-1][rightIndex+1] == 0:
+                                gapCheck[topIndex-1][rightIndex+1] = 2
+                                retDict[2] += 1
                 if bottomIndex < 4 and leftIndex > 1:
-                    if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == val and not gapCheck[bottomIndex+2][leftIndex-2]:
+                    if board[bottomIndex+1][leftIndex-1] == ' ' and board[bottomIndex+2][leftIndex-2] == val:
                         #there is a gap, check if gap can be filled on next move
-                        retDict[2] += 1
-                    gapCheck[topIndex][rightIndex] = True
-                    gapCheck[bottomIndex][leftIndex] = True
+                        if board[bottomIndex+2][leftIndex-1] != ' ':
+                            if gapCheck[bottomIndex+1][leftIndex-1] == 0:
+                                #if no streak set at this gap, set to 2
+                                retDict[2] += 1
+                                gapCheck[bottomIndex+1][leftIndex-1] = 2
     return retDict
 
 def checkUpperLeftDiagonals(board, val):
     #Basically same algorithm as previous function, just with opposite orientation
     #look there for comments
-    checkBoard = [[False for x in range(7)] for y in range(6)]
+    checkBoard = [[0 for x in range(7)] for y in range(6)]
     retDict = {2:0, 3:0, 4:0}
 
     leftColIndices = []
@@ -409,7 +483,9 @@ def checkUpperLeftDiagonals(board, val):
             if leftIndex != rightIndex:
                 streakLength = rightIndex - leftIndex + 1
                 leftFreeSpots = 0
+                leftPlayableFreeSpots = 0
                 rightFreeSpots = 0
+                rightPlayableFreeSpots = 0
 
                 if streakLength >= 4:
                     retDict[4] += 1
@@ -422,21 +498,39 @@ def checkUpperLeftDiagonals(board, val):
                     if topIndex != 0:
                         if board[topIndex-1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
+                            if board[topIndex][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
                 else:
                     if topIndex != 1 and topIndex != 0:
                         if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == val:
-                            retDict[3] += 1
-                            gapCheck[topIndex][leftIndex] = True
-                            gapCheck[bottomIndex][rightIndex] = True
-                            continue
+                            try:
+                                if board[topIndex][leftIndex-1] != ' ':
+                                    if gapCheck[topIndex-1][leftIndex-1] == 0:
+                                        retDict[3] += 1
+                                        gapCheck[topIndex-1][leftIndex-1] = 3
+                                    elif gapCheck[topIndex-1][leftIndex-1] < 3:
+                                        retDict[gapCheck[topIndex-1][leftIndex-1]] -= 1
+                                        retDict[3] += 1
+                                        gapCheck[topIndex-1][leftIndex-1] = 3
+                                    continue
+                            except IndexError:
+                                pass
                         elif board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == ' ':
                             leftFreeSpots += 2
+                            if board[topIndex][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
+                                if board[topIndex-1][leftIndex-2] != ' ':
+                                    leftPlayableFreeSpots += 1
                         elif board[topIndex-1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
+                            if board[topIndex][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
                     elif bottomIndex != 0:
                         #bottom index = 4
                         if board[topIndex-1][leftIndex-1] == ' ':
                             leftFreeSpots += 1
+                            if board[topIndex][leftIndex-1] != ' ':
+                                leftPlayableFreeSpots += 1
 
                 #check free spots down and to the right
                 if rightIndex == 6:
@@ -445,41 +539,68 @@ def checkUpperLeftDiagonals(board, val):
                     if bottomIndex != 5:
                         if board[bottomIndex+1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            try:
+                                if board[bottomIndex+2][rightIndex+1] != ' ':
+                                    rightPlayableFreeSpots += 1
+                            except:
+                                pass
                 else:
                     if bottomIndex != 4 and bottomIndex != 5:
                         if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == val:
-                            retDict[3] += 1
-                            gapCheck[topIndex][leftIndex] = True
-                            gapCheck[bottomIndex][rightIndex] = True
-                            continue
+                            
+                            try:
+                                if board[bottomIndex+2][rightIndex+1] != ' ':
+                                    if gapCheck[bottomIndex+1][rightIndex+1] == 0:
+                                        retDict[3] += 1
+                                        gapCheck[bottomIndex+1][rightIndex+1] = 3
+                                    elif gapCheck[bottomIndex+1][rightIndex+1] < 3:
+                                        retDict[gapCheck[bottomIndex+1][rightIndex+1]] -= 1
+                                        retDict[3] += 1
+                                        gapCheck[bottomIndex+1][rightIndex+1] = 3
+                                    continue
+                            except IndexError:
+                                pass
                         elif board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == ' ':
                             rightFreeSpots += 2
+                            if board[bottomIndex+2][rightIndex+1] != ' ':
+                                rightPlayableFreeSpots += 1
+                                try:
+                                    if board[bottomIndex+3][rightIndex+2] != ' ':
+                                        rightPlayableFreeSpots += 1
+                                except:
+                                    if bottomIndex+3 == 5:
+                                        rightPlayableFreeSpots += 1
+                                        
                         elif board[bottomIndex+1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            if board[bottomIndex+2][rightIndex+1] != ' ':
+                                rightPlayableFreeSpots += 1
                     elif bottomIndex != 5:
+                        #bottom index = 4
                         if board[topIndex+1][rightIndex+1] == ' ':
                             rightFreeSpots += 1
+                            rightPlayableFreeSpots += 1
 
                 if (streakLength + leftFreeSpots + rightFreeSpots) >= 4:
                     if streakLength >= 4:
                         streakLength = 4
-                    retDict[streakLength] += 1
+                    
+                    if leftPlayableFreeSpots != 0 or rightPlayableFreeSpots != 0:
+                        retDict[streakLength] += 1
             else:
                 if topIndex > 1 and leftIndex > 1:
-                    if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == val and not gapCheck[topIndex-2][leftIndex-2]:
-                        retDict[2] += 1
-                        #print "setting at l=%d, r=%d, t=%d, b=%d" % (leftIndex, rightIndex, topIndex, bottomIndex)
-                        #print gapCheck
-                    gapCheck[topIndex][leftIndex] = True
-                    gapCheck[bottomIndex][rightIndex] = True
+                    if board[topIndex-1][leftIndex-1] == ' ' and board[topIndex-2][leftIndex-2] == val:
+                        if board[topIndex][leftIndex-1] != ' ':
+                            if gapCheck[topIndex-1][leftIndex-1] == 0:
+                                retDict[2] += 1
+                                gapCheck[topIndex-1][leftIndex-1] = 2
                 if bottomIndex < 4 and rightIndex < 4:
-                    if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == val and not gapCheck[bottomIndex+2][rightIndex+2]:
+                    if board[bottomIndex+1][rightIndex+1] == ' ' and board[bottomIndex+2][rightIndex+2] == val:
                         #there is a gap, check if gap can be filled on next move
-                        retDict[2] += 1
-                        #print "setting at l=%d, r=%d, t=%d, b=%d" % (leftIndex, rightIndex, topIndex, bottomIndex)
-                        #print gapCheck
-                    gapCheck[topIndex][leftIndex] = True
-                    gapCheck[bottomIndex][rightIndex] = True
+                        if board[bottomIndex+2][rightIndex+1] != ' ':
+                            if gapCheck[bottomIndex+1][rightIndex+1] == 0:
+                                retDict[2] += 1
+                                gapCheck[bottomIndex+1][rightIndex+1] = 2
     return retDict
 
 def checkVerticalMatches(board, valToCheck, colScore):

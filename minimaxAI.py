@@ -134,7 +134,7 @@ def utility(board):
 
     twoStreakMult = 1
     threeStreakMult = 5
-    fourStreakMult = 20
+    fourStreakMult = 30
 
     #key is number of values in streak, value is the number of streaks for that key
     rowScore = {2:0, 3:0, 4:0}
