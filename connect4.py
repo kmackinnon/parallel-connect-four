@@ -116,6 +116,7 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
+        print "PLAYER %d WON!\n" % (self.activePlayer)
 
     def start_human_computer_game(self):
         printBoard = True
@@ -160,6 +161,7 @@ class Connect4(object):
                     printBoard = False
                     continue
         self.print_game_board()
+        print "PLAYER %d WON!\n" % (self.activePlayer)
 
     def start_computer_computer_game(self):
         #TODO
@@ -201,6 +203,7 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
+        print "PLAYER %d WON!\n" % (self.activePlayer)
 
 
 if __name__ == "__main__":
