@@ -6,11 +6,13 @@ from minimaxAI import run_AI as startMinimax
 from minimaxAI import evaluateBoard
 from randomAI import run_AI as startRandom
 from gameover import gameOver
+from random import randint
 
 class Connect4(object):
 
     HEIGHT = 6
     WIDTH = 7
+    FIRST = True
 
     #index by (row,col), (0,0) is top left
     board = [[" " for x in range(WIDTH)] for y in range(HEIGHT)]
@@ -21,6 +23,7 @@ class Connect4(object):
 
     def start(self):
         print "Welcome to Connect 4!"
+        self.activePlayer = randint(0,1)
         gameType = self.get_game_type()
         if gameType == "1":
             self.start_human_human_game()
@@ -84,6 +87,7 @@ class Connect4(object):
 
     def start_human_human_game(self):
         printBoard = True
+        tie = True
 
         while(True):
             if printBoard:
@@ -107,6 +111,8 @@ class Connect4(object):
                 if moveSuccess:
                     evaluateBoard(self.board, self.activePlayer)
                     if gameOver(self.board, self.activePlayer):
+                        print "PLAYER %d WON!\n" % (self.activePlayer)
+                        tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
@@ -116,10 +122,13 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
-        print "PLAYER %d WON!\n" % (self.activePlayer)
+        if tie:
+            print "GAME WAS A TIE\n"
 
     def start_human_computer_game(self):
         printBoard = True
+        tie = True
+
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -139,8 +148,12 @@ class Connect4(object):
                 colChoice = getch()
             else:
                 print "Player 2 (O) >> "
-                tempBoard = copy.deepcopy(self.board)
-                colChoice = startMinimax(tempBoard, self.activePlayer)
+                if self.FIRST:
+                    colChoice = "3"
+                    self.FIRST = False
+                else:
+                    tempBoard = copy.deepcopy(self.board)
+                    colChoice = startMinimax(tempBoard, self.activePlayer)
                 print "[INFO] AI is playing column " + colChoice
 
             if colChoice == "k":
@@ -153,6 +166,8 @@ class Connect4(object):
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
                     if gameOver(self.board, self.activePlayer):
+                        print "PLAYER %d WON!\n" % (self.activePlayer)
+                        tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
@@ -161,11 +176,13 @@ class Connect4(object):
                     printBoard = False
                     continue
         self.print_game_board()
-        print "PLAYER %d WON!\n" % (self.activePlayer)
+        if tie:
+            print "GAME WAS A TIE\n"
 
     def start_computer_computer_game(self):
-        #TODO
         printBoard = True
+        tie = True
+
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -180,9 +197,17 @@ class Connect4(object):
 
             tempBoard = copy.deepcopy(self.board)
             if self.activePlayer == 0:
-                colChoice = startMinimax(tempBoard, self.activePlayer)
+                if self.FIRST:
+                    colChoice = "3"
+                    self.FIRST = False
+                else:
+                    colChoice = startMinimax(tempBoard, self.activePlayer)
             else:
-                colChoice = startMinimax(tempBoard, self.activePlayer)
+                if self.FIRST:
+                    colChoice = "3"
+                    self.FIRST = False
+                else:
+                    colChoice = startMinimax(tempBoard, self.activePlayer)
 
             if colChoice == "k":
                 sys.exit(0)
@@ -194,6 +219,8 @@ class Connect4(object):
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
                     if gameOver(self.board, self.activePlayer):
+                        print "PLAYER %d WON!\n" % (self.activePlayer)
+                        tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
                     printBoard = True
@@ -203,7 +230,8 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
-        print "PLAYER %d WON!\n" % (self.activePlayer)
+        if tie:
+            print "GAME WAS A TIE\n"
 
 
 if __name__ == "__main__":
