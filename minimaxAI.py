@@ -1,8 +1,10 @@
 import sys
 import copy
 import time
+import multiprocessing
+from functools import partial
 from gameover import gameOver
-from random import randint
+import my_thread as t
 import evaluationUtilities as util
 
 activePlayer = -1
@@ -16,24 +18,31 @@ def alpha_beta_search(board):
     global startTime
     startTime = time.clock()
     moves = get_moves(board)
-    move = moves[randint(0,len(moves)-1)]
-    v = max_value_first(board, float('-inf'), float('inf'), move, 0)
+    v = max_value_first(board, float('-inf'), float('inf'), 0)
     return v[1]
 
 # returns a utility value
-def max_value_first(board, alpha, beta, m, depth):
+def max_value_first(board, alpha, beta, depth):
     v = float('-inf')
-    move = m
-    for a in get_moves(board):
-        vMin = min_value(make_move(board,a,activePlayer), alpha, beta, depth+1)
-        if v >= vMin:
-            move = move
-        else:
-            v = vMin
-            move = a
-        if v >= beta:
-            return (v, move)
-        alpha = max(alpha,v)
+    moves = get_moves(board);
+    
+    v_mins = []
+
+    iterable = [ x for x in moves ]
+    print iterable
+    pool = multiprocessing.Pool()
+    func = partial(t.find_min, board,activePlayer,alpha,beta,depth)
+    v_mins = pool.map(func, iterable)
+    pool.close()
+    pool.join()
+
+    v = max(v_mins)
+    move = v_mins.index(v)
+
+    print v_mins
+    print "VAL: " , v
+    print "MOVE: ", move
+
     return (v, move)
 
 # returns a utility value
@@ -200,3 +209,4 @@ def run_AI(board, ID):
         opponentPlayer = 0
     v = alpha_beta_search(board)
     return str(v)
+
