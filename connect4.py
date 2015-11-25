@@ -146,6 +146,7 @@ class Connect4(object):
                 print "Enter column number to drop piece"
                 print "Player 1 (X) >> "
                 colChoice = getch()
+                self.FIRST = False
             else:
                 print "Player 2 (O) >> "
                 if self.FIRST:
