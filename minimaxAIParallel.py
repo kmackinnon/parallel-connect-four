@@ -4,6 +4,7 @@ import minimaxCommon as mmUtil
 import multiprocessing
 from functools import partial
 from gameover import gameOver
+from operator import itemgetter
 import my_thread as t
 
 activePlayer = -1
@@ -27,19 +28,17 @@ def max_value_first(board, alpha, beta, depth):
     v_mins = []
 
     iterable = [ x for x in moves ]
-    print iterable
     pool = multiprocessing.Pool()
     func = partial(t.find_min, board,activePlayer,alpha,beta,depth)
     v_mins = pool.map(func, iterable)
     pool.close()
     pool.join()
 
-    v = max(v_mins)
-    move = v_mins.index(v)
+    move = max(v_mins,key=itemgetter(1))[0]
+    v = v_mins[move][1];
 
     print v_mins
-    print "VAL: " , v
-    print "MOVE: ", move
+    print (move,v)
 
     return (v, move)
 
