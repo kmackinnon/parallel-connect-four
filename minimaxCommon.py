@@ -45,7 +45,7 @@ def time_check(startTime, maxTime):
 def terminal_test(board, player, depth, startTime, maxTime, maxDepth):
     # checks if time limit has been reached
     if time_check(startTime, maxTime):
-        #print "[INFO] AI ran out of time."
+        print "[INFO] AI ran out of time."
         return True
 
     # checks if max depth has been reached

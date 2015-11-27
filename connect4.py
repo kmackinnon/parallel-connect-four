@@ -2,11 +2,13 @@
 import sys
 import copy
 from getch import getch
-from minimaxAIParallel import run_AI as startMinimax
+from minimaxAIParallel import run_AI as startPar
+from minimaxAISequential import run_AI as startSeq
 from minimaxCommon import evaluateBoard
 from randomAI import run_AI as startRandom
 from gameover import gameOver
 from random import randint
+import time
 
 class Connect4(object):
 
@@ -154,7 +156,10 @@ class Connect4(object):
                     self.FIRST = False
                 else:
                     tempBoard = copy.deepcopy(self.board)
-                    colChoice = startMinimax(tempBoard, self.activePlayer)
+                    st = time.time()
+                    colChoice = startSeq(tempBoard, self.activePlayer)
+                    et = time.time()
+                    print "[INFO] Time taken: " + str(et - st)
                 print "[INFO] AI is playing column " + colChoice
 
             if colChoice == "k":
@@ -183,6 +188,9 @@ class Connect4(object):
     def start_computer_computer_game(self):
         printBoard = True
         tie = True
+        totalSeq = 0
+        totalPar = 0
+        turns = 0
 
         while(True):
             if printBoard:
@@ -202,13 +210,21 @@ class Connect4(object):
                     colChoice = "3"
                     self.FIRST = False
                 else:
-                    colChoice = startMinimax(tempBoard, self.activePlayer)
+                    st = time.time()
+                    colChoice = startPar(tempBoard, self.activePlayer)
+                    et = time.time()
+                    turns = turns + 1
+                    totalPar = totalPar + (et - st)
             else:
                 if self.FIRST:
                     colChoice = "3"
                     self.FIRST = False
                 else:
-                    colChoice = startMinimax(tempBoard, self.activePlayer)
+                    st = time.time()
+                    colChoice = startSeq(tempBoard, self.activePlayer)
+                    et = time.time()
+                    turns = turns + 1
+                    totalSeq = totalSeq + (et - st)
 
             if colChoice == "k":
                 sys.exit(0)
@@ -231,6 +247,8 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
+        print "[INFO] Average Sequential Time: " + (totalSeq/turns)
+        print "[INFO] Average Parallel Time: " + (totalPar/turns)
         if tie:
             print "GAME WAS A TIE\n"
 

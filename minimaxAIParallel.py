@@ -9,12 +9,13 @@ import my_thread as t
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 10
+maxTime = 120
 startTime = 0
-maxDepth = 7
+maxDepth = 8
 
 # returns an action
 def alpha_beta_search(board):
+    print "[INFO] PARALLEL"
     global startTime
     startTime = time.clock()
     v = max_value_first(board, float('-inf'), float('inf'), 0)
