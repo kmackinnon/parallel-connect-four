@@ -2,7 +2,7 @@
 import sys
 import copy
 from getch import getch
-from s_minimaxAI import run_AI as startMinimax
+from minimaxAIParallel import run_AI as startMinimax
 from minimaxCommon import evaluateBoard
 from randomAI import run_AI as startRandom
 from gameover import gameOver
