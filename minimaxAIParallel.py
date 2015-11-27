@@ -34,13 +34,12 @@ def max_value_first(board, alpha, beta, depth):
     pool.close()
     pool.join()
 
-    move = max(v_mins,key=itemgetter(1))[0]
-    v = v_mins[move][1];
+    mov_val = max(v_mins,key=itemgetter(1)) # (move, value)
 
     print v_mins
-    print (move,v)
-
-    return (v, move)
+    print mov_val
+   
+    return mov_val[::-1]  # (val, move)
 
 # returns a utility value
 def max_value(board, alpha, beta, depth):
