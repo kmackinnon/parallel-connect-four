@@ -9,9 +9,9 @@ import my_thread as t
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 10
+maxTime = 15
 startTime = 0
-maxDepth = 7
+maxDepth = 8
 
 # returns an action
 def alpha_beta_search(board):
@@ -24,23 +24,20 @@ def alpha_beta_search(board):
 # returns a utility value
 def max_value_first(board, alpha, beta, depth):
     v = float('-inf')
-    moves = mmUtil.get_moves(board);
-
-    v_mins = []
-
-    iterable = [ x for x in moves ]
+    moves = mmUtil.get_moves(board)
+    
     pool = multiprocessing.Pool()
-    func = partial(t.find_min, board,activePlayer,alpha,beta,depth)
-    v_mins = pool.map(func, iterable)
+    func = partial(t.find_min, board, activePlayer, alpha, beta, depth)
+    v_mins = pool.map_async(func, moves)
     pool.close()
     pool.join()
 
-    mov_val = max(v_mins,key=itemgetter(1)) # (move, value)
+    mov_val = max(v_mins.get(), key=itemgetter(1)) # (move, value)
 
-    print v_mins
+    print v_mins.get()
     print mov_val
 
-    return mov_val[::-1]  # (val, move)
+    return mov_val[::-1]  # (value, move)
 
 # returns a utility value
 def max_value(board, alpha, beta, depth):

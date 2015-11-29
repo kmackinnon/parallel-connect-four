@@ -157,7 +157,8 @@ class Connect4(object):
                 else:
                     tempBoard = copy.deepcopy(self.board)
                     st = time.time()
-                    colChoice = startSeq(tempBoard, self.activePlayer)
+                    #colChoice = startSeq(tempBoard, self.activePlayer)
+                    colChoice = startPar(tempBoard, self.activePlayer)
                     et = time.time()
                     print "[INFO] Time taken: " + str(et - st)
                 print "[INFO] AI is playing column " + colChoice
