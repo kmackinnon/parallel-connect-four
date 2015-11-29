@@ -188,9 +188,6 @@ class Connect4(object):
     def start_computer_computer_game(self):
         printBoard = True
         tie = True
-        totalSeq = 0
-        totalPar = 0
-        turns = 0
 
         while(True):
             if printBoard:
@@ -213,8 +210,6 @@ class Connect4(object):
                     st = time.time()
                     colChoice = startPar(tempBoard, self.activePlayer)
                     et = time.time()
-                    turns = turns + 1
-                    totalPar = totalPar + (et - st)
             else:
                 if self.FIRST:
                     colChoice = "3"
@@ -223,8 +218,6 @@ class Connect4(object):
                     st = time.time()
                     colChoice = startSeq(tempBoard, self.activePlayer)
                     et = time.time()
-                    turns = turns + 1
-                    totalSeq = totalSeq + (et - st)
 
             if colChoice == "k":
                 sys.exit(0)
@@ -247,8 +240,6 @@ class Connect4(object):
                     continue
         #final game board
         self.print_game_board()
-        print "[INFO] Average Sequential Time: " + (totalSeq/turns)
-        print "[INFO] Average Parallel Time: " + (totalPar/turns)
         if tie:
             print "GAME WAS A TIE\n"
 

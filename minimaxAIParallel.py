@@ -9,9 +9,9 @@ import my_thread as t
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 120
+maxTime = 10
 startTime = 0
-maxDepth = 8
+maxDepth = 7
 
 # returns an action
 def alpha_beta_search(board):
@@ -39,7 +39,7 @@ def max_value_first(board, alpha, beta, depth):
 
     print v_mins
     print mov_val
-   
+
     return mov_val[::-1]  # (val, move)
 
 # returns a utility value
