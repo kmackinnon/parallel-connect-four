@@ -30,8 +30,10 @@ class Connect4(object):
         if gameType == "1":
             self.start_human_human_game()
         elif gameType == "2":
-            self.start_human_computer_game()
+            self.start_human_computer_game(False)
         elif gameType == "3":
+            self.start_human_computer_game(True)
+        elif gameType == "4":
             self.start_computer_computer_game()
         else:
             print "Unexpected game type, exiting.."
@@ -39,10 +41,11 @@ class Connect4(object):
 
     def get_game_type(self):
         while(True):
-            print "\nChoose your game type:\n1. Human vs human\n2. Human vs computer\n3. Computer vs Computer"
+            print ("\nChoose your game type:\n1. Human vs Human\n2. Human vs Serial Computer" +
+            "\n3. Human vs Parallel Computer\n4. Computer vs Computer")
             print ">>",
             gameChoice = getch()
-            if gameChoice not in ["1", "2", "3"]:
+            if gameChoice not in [str(x) for x in range(3)]:
                 print "You must enter the number for the desired game type"
                 continue
             else:
@@ -91,6 +94,7 @@ class Connect4(object):
         printBoard = True
         tie = True
 
+        # game loop
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -104,7 +108,7 @@ class Connect4(object):
             colChoice = getch()
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "You must enter a valid column"
                 printBoard = False
                 continue
@@ -127,10 +131,11 @@ class Connect4(object):
         if tie:
             print "GAME WAS A TIE\n"
 
-    def start_human_computer_game(self):
+    def start_human_computer_game(self, is_parallel):
         printBoard = True
         tie = True
 
+        # game loop
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -157,15 +162,19 @@ class Connect4(object):
                 else:
                     tempBoard = copy.deepcopy(self.board)
                     st = time.time()
-                    #colChoice = startSeq(tempBoard, self.activePlayer)
-                    colChoice = startPar(tempBoard, self.activePlayer)
+                    
+                    if is_parallel:
+                        colChoice = startPar(tempBoard, self.activePlayer)
+                    else:
+                        colChoice = startSeq(tempBoard, self.activePlayer)
+                    
                     et = time.time()
                     print "[INFO] Time taken: " + str(et - st)
                 print "[INFO] AI is playing column " + colChoice
 
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "You must enter a valid column"
                 printBoard = False
                 continue
@@ -190,6 +199,7 @@ class Connect4(object):
         printBoard = True
         tie = True
 
+        # game loop
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -222,7 +232,7 @@ class Connect4(object):
 
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "[ERROR] AI player #" + str(self.activePlayer) + " did not choose a valid column"
                 printBoard = False
                 continue

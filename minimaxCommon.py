@@ -69,7 +69,7 @@ def terminal_test(board, player, depth, startTime, maxTime, maxDepth):
 
 def evaluateBoard(board, player):
     activePlayer = player
-    utility(board)
+    utility(board, activePlayer)
 
 # calculates the utility of a given board state
 def utility(board, activePlayer):
