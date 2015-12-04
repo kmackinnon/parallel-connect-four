@@ -45,7 +45,7 @@ class Connect4(object):
             "\n3. Human vs Parallel Computer\n4. Computer vs Computer")
             print ">>",
             gameChoice = getch()
-            if gameChoice not in [str(x) for x in range(3)]:
+            if gameChoice not in ["1", "2", "3", "4"]:
                 print "You must enter the number for the desired game type"
                 continue
             else:
