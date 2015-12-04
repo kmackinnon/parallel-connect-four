@@ -45,7 +45,7 @@ class Connect4(object):
             "\n3. Human vs Parallel Computer\n4. Computer vs Computer")
             print ">>",
             gameChoice = getch()
-            if gameChoice not in ["1", "2", "3", "4"]:
+            if gameChoice not in [str(x) for x in range(3)]:
                 print "You must enter the number for the desired game type"
                 continue
             else:
@@ -94,6 +94,7 @@ class Connect4(object):
         printBoard = True
         tie = True
 
+        # game loop
         while(True):
             if printBoard:
                 self.print_game_board()
@@ -107,7 +108,7 @@ class Connect4(object):
             colChoice = getch()
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "You must enter a valid column"
                 printBoard = False
                 continue
@@ -173,7 +174,7 @@ class Connect4(object):
 
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "You must enter a valid column"
                 printBoard = False
                 continue
@@ -198,7 +199,6 @@ class Connect4(object):
         printBoard = True
         tie = True
 
-        # TODO refactor and put some of this in methods
         # game loop
         while(True):
             if printBoard:
@@ -232,7 +232,7 @@ class Connect4(object):
 
             if colChoice == "k":
                 sys.exit(0)
-            elif colChoice not in ["0", "1", "2", "3", "4", "5", "6"]:
+            elif colChoice not in [str(x) for x in range(self.WIDTH)]:
                 print "[ERROR] AI player #" + str(self.activePlayer) + " did not choose a valid column"
                 printBoard = False
                 continue
