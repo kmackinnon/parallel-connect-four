@@ -5,7 +5,7 @@ from functools import partial
 from operator import itemgetter
 
 def find_min(board, activePlayer, alpha, beta, depth, mov_cpu):
-	print "Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)
+	print "[" + str(depth) + "] Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)
 	a = mov_cpu[0]
 	numCPU = mov_cpu[1]
 
@@ -27,7 +27,7 @@ def find_min(board, activePlayer, alpha, beta, depth, mov_cpu):
 		return mov_val
 
 def find_max(board, activePlayer, alpha, beta, depth, mov_cpu):
-	print "Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)
+	print "[" + str(depth) + "]Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)
 	a = mov_cpu[0]
 	if activePlayer == 1:
 		opponentPlayer = 0
