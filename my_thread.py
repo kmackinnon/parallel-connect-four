@@ -23,5 +23,5 @@ def find_min(board, activePlayer, alpha, beta, depth, mov_cpu):
 		v_mins = pool.map_async(func, data)
 		pool.close()
 		pool.join()
-		mov_val = max(v_mins.get(), key=itemgetter(1)) # (move, value)
+		mov_val = min(v_mins.get(), key=itemgetter(1)) # (move, value)
 		return mov_val[::-1]
