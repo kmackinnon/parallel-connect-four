@@ -19,9 +19,18 @@ def find_min(board, activePlayer, alpha, beta, depth, mov_cpu):
 
 		pool = multiprocessing.Pool(processes = numCPU)
 
-		func = partial(find_min, board, activePlayer, alpha, beta, depth+1)
-		v_mins = pool.map_async(func, data)
+		func = partial(find_max, board, activePlayer, alpha, beta, depth+1)
+		v_maxs = pool.map_async(func, data)
 		pool.close()
 		pool.join()
-		mov_val = min(v_mins.get(), key=itemgetter(1)) # (move, value)
-		return mov_val[::-1]
+		mov_val = min(v_maxs.get(), key=itemgetter(1)) # (move, value)
+		return mov_val
+
+def find_max(board, activePlayer, alpha, beta, depth, mov_cpu):
+	print "Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)
+	a = mov_cpu[0]
+	if activePlayer == 1:
+		opponentPlayer = 0
+	else:
+		opponentPlayer = 1
+	return (a, ai.max_value(mmUtil.make_move(board,a,opponentPlayer), alpha, beta, depth+1))
