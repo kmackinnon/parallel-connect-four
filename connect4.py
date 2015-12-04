@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import copy
+import time
 from getch import getch
 from minimaxAIParallel import run_AI as startPar
 from minimaxAISequential import run_AI as startSeq
@@ -8,7 +9,6 @@ from minimaxCommon import evaluateBoard
 from randomAI import run_AI as startRandom
 from gameover import gameOver
 from random import randint
-import time
 
 class Connect4(object):
 

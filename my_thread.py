@@ -1,5 +1,8 @@
+import multiprocessing
 import minimaxAIParallel as ai
 import minimaxCommon as mmUtil
+from functools import partial
+from operator import itemgetter
 
 def find_min(board, activePlayer, alpha, beta, depth, mov_cpu):
 	print "Data for move " + str(mov_cpu[0]) + ": " + str(mov_cpu)

@@ -2,10 +2,10 @@ import sys
 import time
 import minimaxCommon as mmUtil
 import multiprocessing
-from functools import partial
-from gameover import gameOver
-from operator import itemgetter
 import my_thread as t
+import MyPool as p
+from functools import partial
+from operator import itemgetter
 
 activePlayer = -1
 opponentPlayer = -1
@@ -33,7 +33,7 @@ def max_value_first(board, alpha, beta, depth):
     if num_extra < 0:
         num_extra = 0
 
-    pool = multiprocessing.Pool()
+    pool = p.MyPool(numCPU - num_extra)
     func = partial(t.find_min, board, activePlayer, alpha, beta, depth)
 
     # Make array of tuples for each node of tree at the next depth

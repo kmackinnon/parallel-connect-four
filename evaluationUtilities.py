@@ -1,5 +1,3 @@
-
-
 def checkColumn(board, val, col):
     #only returns a count if there is an available slot above the streak of values
 
