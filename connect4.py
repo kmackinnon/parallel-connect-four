@@ -39,6 +39,12 @@ class Connect4(object):
             print "Unexpected game type, exiting.."
             sys.exit()
 
+    def print_winner(self,p):
+        if p == 0:
+            print "PLAYER 1 (X) WON!\n"
+        else:
+            print "PLAYER 2 (O) WON!\n"
+
     def get_game_type(self):
         while(True):
             print ("\nChoose your game type:\n1. Human vs Human\n2. Human vs Serial Computer" +
@@ -117,7 +123,7 @@ class Connect4(object):
                 if moveSuccess:
                     evaluateBoard(self.board, self.activePlayer)
                     if gameOver(self.board, self.activePlayer):
-                        print "PLAYER %d WON!\n" % (self.activePlayer+1)
+                        self.print_winner(self.activePlayer)
                         tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
@@ -162,12 +168,12 @@ class Connect4(object):
                 else:
                     tempBoard = copy.deepcopy(self.board)
                     st = time.time()
-                    
+
                     if is_parallel:
                         colChoice = startPar(tempBoard, self.activePlayer)
                     else:
                         colChoice = startSeq(tempBoard, self.activePlayer)
-                    
+
                     et = time.time()
                     print "[INFO] Time taken: " + str(et - st)
                 print "[INFO] AI is playing column " + colChoice
@@ -182,7 +188,7 @@ class Connect4(object):
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
                     if gameOver(self.board, self.activePlayer):
-                        print "PLAYER %d WON!\n" % (self.activePlayer+1)
+                        self.print_winner(self.activePlayer)
                         tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
@@ -240,7 +246,7 @@ class Connect4(object):
                 moveSuccess = self.make_move(int(colChoice))
                 if moveSuccess:
                     if gameOver(self.board, self.activePlayer):
-                        print "PLAYER %d WON!\n" % (self.activePlayer)
+                        self.print_winner(self.activePlayer)
                         tie = False
                         break
                     self.activePlayer = (self.activePlayer + 1) % 2
@@ -253,7 +259,6 @@ class Connect4(object):
         self.print_game_board()
         if tie:
             print "GAME WAS A TIE\n"
-
 
 if __name__ == "__main__":
     game = Connect4()
