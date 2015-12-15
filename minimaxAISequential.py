@@ -4,7 +4,7 @@ import minimaxCommon as mmUtil
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 10
+maxTime = 20
 startTime = 0
 maxDepth = 7
 

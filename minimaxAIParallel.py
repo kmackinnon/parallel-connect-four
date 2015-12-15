@@ -9,7 +9,7 @@ from operator import itemgetter
 
 activePlayer = -1
 opponentPlayer = -1
-maxTime = 15
+maxTime = 20
 startTime = 0
 maxDepth = 8
 numCPU = 0
@@ -51,14 +51,14 @@ def max_value_first(board, alpha, beta, depth):
     data = []
 
     # Calculate the base number of extra processors that each move will use
-    base = num_extra/7
+    base = num_extra/len(moves)
 
     # For each tuple add the base number of extra processors to the default amount (1)
     for node in next_nodes:
         data.append((node[0], 1+base))
 
     # Allocate remaining processor with moves that have the highest branching factor
-    for i in range((num_extra % 7)):
+    for i in range((num_extra % len(moves))):
         node = data[i]
         data[i] = (node[0], node[1]+1)
 
